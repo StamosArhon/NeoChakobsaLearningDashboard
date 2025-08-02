@@ -44,5 +44,7 @@ async def dictionary():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("backend.server:app", host="0.0.0.0", port=8000, reload=True)
+    # Run directly without requiring an import string so `python backend/server.py`
+    # works on systems where the project root is not on the module search path.
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
