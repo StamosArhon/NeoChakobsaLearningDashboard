@@ -1,17 +1,12 @@
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
-import Header from '../components/Header'
-import Sidebar from '../components/Sidebar'
+import Layout from '../components/Layout'
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <div>
-      <Header />
-      <Sidebar />
-      <main className="p-4">
-        <Component {...pageProps} />
-      </main>
-    </div>
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
   )
 }
 

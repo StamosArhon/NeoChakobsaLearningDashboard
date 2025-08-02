@@ -1,21 +1,42 @@
 import Link from 'next/link'
-import { useState } from 'react'
+import { useRouter } from 'next/router'
 
-export default function Sidebar() {
-  const [open, setOpen] = useState(false)
+interface SidebarProps {
+  open: boolean
+  close: () => void
+}
+
+const navItems = [
+  { href: '/', label: 'Dashboard' },
+  { href: '/scrapper', label: 'Scrapper' },
+  { href: '/dictionary', label: 'Dictionary' },
+]
+
+export default function Sidebar({ open, close }: SidebarProps) {
+  const router = useRouter()
   return (
-    <div className="flex">
-      <button
-        className="p-2 m-2 bg-gray-200" onClick={() => setOpen(!open)}
-        aria-label="toggle menu"
-      >☰</button>
-      {open && (
-        <nav className="bg-gray-100 p-4 w-40 space-y-2">
-          <Link href="/">Dashboard</Link>
-          <Link href="/scrapper">Scrapper</Link>
-          <Link href="/dictionary">Dictionary</Link>
-        </nav>
-      )}
-    </div>
+    <aside
+      className={`fixed top-0 left-[-280px] w-[280px] h-full bg-[rgba(15,15,35,0.95)] backdrop-blur-xl border-r border-white/10 transition-all z-40 pt-[90px] ${
+        open ? 'left-0' : ''
+      }`}
+    >
+      <nav className="p-5">
+        {navItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={close}
+            className={`flex items-center px-5 py-3 mb-2 rounded-xl font-medium border border-transparent transition hover:bg-orange-500/10 hover:border-orange-500/30 hover:translate-x-1 ${
+              router.pathname === item.href
+                ? 'bg-gradient-to-r from-orange-500/20 to-amber-300/10 border-orange-500/50'
+                : ''
+            }`}
+          >
+            <div className="w-5 h-5 bg-orange-500 rounded mr-4" />
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+    </aside>
   )
 }

@@ -2,4 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-body { font-family: sans-serif; }
+@font-face {
+  font-family: 'Chakobsa';
+  src: url('/fonts/chakobsa.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  @apply font-sans;
+}
