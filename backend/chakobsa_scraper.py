@@ -10,7 +10,7 @@ Saves:
   • pos    (part-of-speech)
   • gloss  (all senses, “; ”-joined)
   • ipa    (IPA pronunciation)
-  • orth   (HTML of <span>…Chakobsa…</span> for the glyph, hyphens replaced with commas)
+  • orth   (glyph text with hyphens replaced by commas)
   • url    (…/index.php?title=…)
 
 Install:
@@ -135,16 +135,19 @@ def stream_scrape() -> Generator[Dict[str, int], None, None]:
             debug_saved += 1
 
         # 2. extract first Chakobsa font span ANYWHERE in the page
-        orth_html = None
+        orth = None
         m2 = CHAKOBSA_SPAN_RX.search(html_body)
         if m2:
-            # Replace hyphens with commas for Chakobsa font correctness
-            orth_html = m2.group(1).replace("-", ",")
+            span = m2.group(1)
+            start = span.find('>') + 1
+            end = span.rfind('<')
+            text = span[start:end].replace('-', ',').strip()
+            orth = text
 
         url = f"https://wiki.languageinvention.com/index.php?title={quote_plus(title)}"
         cur.execute(
             "INSERT OR REPLACE INTO lexicon VALUES (?,?,?,?,?,?)",
-            (title, data["pos"], data["gloss"], data["ipa"], orth_html, url),
+            (title, data["pos"], data["gloss"], data["ipa"], orth, url),
         )
         inserted += 1
 
