@@ -1,0 +1,27 @@
+# Node
+node_modules/
+.next/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+
+# Database
+backend/*.db
+
+# Output
+frontend/.next/
+frontend/out/
+frontend/node_modules/
+
+# Fonts
+frontend/public/fonts/
+

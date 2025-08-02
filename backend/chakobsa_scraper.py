@@ -23,15 +23,18 @@ import re
 import sys
 import sqlite3
 import warnings
+from pathlib import Path
 from urllib.parse import quote_plus
 
 import mwclient
 import mwparserfromhell
 from tqdm import tqdm
+from typing import Generator, Dict
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-DB, ROOT_CAT = "chakobsa.db", "Chakobsa lemmas"
+DB = Path(__file__).resolve().with_name("chakobsa.db")
+ROOT_CAT = "Chakobsa lemmas"
 site = mwclient.Site("wiki.languageinvention.com", scheme="https", path="/")
 
 def all_lemma_pages(root: str = ROOT_CAT):
@@ -82,10 +85,13 @@ def parse_wikitext(text: str):
 
     return {"pos": pos, "gloss": gloss, "ipa": ipa}
 
-def build_db():
+
+def stream_scrape() -> Generator[Dict[str, int], None, None]:
+    """Scrape the wiki and yield progress dictionaries."""
     con = sqlite3.connect(DB)
     cur = con.cursor()
-    cur.execute("""
+    cur.execute(
+        """
         CREATE TABLE IF NOT EXISTS lexicon(
             lemma TEXT PRIMARY KEY,
             pos   TEXT,
@@ -94,25 +100,27 @@ def build_db():
             orth  TEXT,
             url   TEXT
         )
-    """)
-
-    pages    = list(all_lemma_pages())
-    inserted = 0
-    bar = tqdm(
-        total=len(pages),
-        desc="Scraping",
-        unit="page",
-        dynamic_ncols=True,
-        disable=not sys.stdout.isatty(),
+        """
     )
+
+    pages = list(all_lemma_pages())
+    total = len(pages)
+    inserted = 0
+
+    yield {"status": "start", "total": total, "inserted": 0}
 
     debug_saved = 0
 
-    for title in pages:
+    for idx, title in enumerate(pages, 1):
         wikitext = site.pages[title].text()
         data = parse_wikitext(wikitext)
-        bar.update(1)
         if not data or not data["pos"]:
+            yield {
+                "status": "progress",
+                "current": idx,
+                "total": total,
+                "inserted": inserted,
+            }
             continue
 
         # 1. fetch rendered HTML
@@ -136,15 +144,25 @@ def build_db():
         url = f"https://wiki.languageinvention.com/index.php?title={quote_plus(title)}"
         cur.execute(
             "INSERT OR REPLACE INTO lexicon VALUES (?,?,?,?,?,?)",
-            (title, data["pos"], data["gloss"], data["ipa"], orth_html, url)
+            (title, data["pos"], data["gloss"], data["ipa"], orth_html, url),
         )
         inserted += 1
-        bar.set_postfix(entries=inserted)
 
-    bar.close()
+        yield {
+            "status": "progress",
+            "current": idx,
+            "total": total,
+            "inserted": inserted,
+        }
+
     con.commit()
     con.close()
-    print(f"\n✓ Wrote {DB} with {inserted} entries")
+    yield {"status": "done", "total": total, "inserted": inserted}
 
+
+def build_db():
+    for _ in stream_scrape():
+        pass
+    
 if __name__ == "__main__":
     build_db()
