@@ -11,17 +11,19 @@ The backend exposes an endpoint for scraping the Chakobsa wiki and a second one 
 
 ### Installation & Development
 
-From the repository root the helper script `manage.py` installs all
-dependencies and starts both the backend and frontend:
+Install the Node helper dependencies then run the setup script which installs both Python and frontend packages:
 
 ```bash
-# install python packages and frontend dependencies
-python manage.py install
+npm install --no-package-lock
+npm run setup
+```
 
-# start uvicorn and the Next.js dev server together
-python manage.py dev
+Start the backend and frontend together:
+
+```bash
+npm run dev
 ```
 
 The UI expects the API base URL in `NEXT_PUBLIC_API_BASE_URL` (defaults to
-`http://localhost:8000`).  Place `chakobsa.ttf` in
+`http://localhost:8000`). Place `chakobsa.ttf` in
 `frontend/public/fonts/` so that the glyphs render correctly.
