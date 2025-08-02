@@ -12,7 +12,14 @@ export default function Scrapper() {
     setProgress(0)
     setStatus('Connecting to data source...')
     setItems('0 / 0 items processed')
-    await fetch('http://localhost:8000/scrape', { method: 'POST' })
+    const api = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+    try {
+      await fetch(`${api}/scrape`, { method: 'POST' })
+    } catch (err) {
+      setStatus('❌ Failed to reach backend')
+      setRunning(false)
+      return
+    }
     let pct = 0
     const interval = setInterval(() => {
       pct += Math.random() * 15

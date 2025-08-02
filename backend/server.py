@@ -1,10 +1,19 @@
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import sqlite3
 import subprocess
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 DB_PATH = Path(__file__).resolve().parent / "chakobsa.db"
 
@@ -28,4 +37,10 @@ async def dictionary():
     ]
     con.close()
     return {"entries": entries}
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run("backend.server:app", host="0.0.0.0", port=8000, reload=True)
 
