@@ -27,3 +27,5 @@ npm run dev
 The UI expects the API base URL in `NEXT_PUBLIC_API_BASE_URL` (defaults to
 `http://localhost:8000`). Place `chakobsa.ttf` in
 `frontend/public/fonts/` so that the glyphs render correctly.
+
+The scraper stores its SQLite database as `backend/chakobsa.db`.

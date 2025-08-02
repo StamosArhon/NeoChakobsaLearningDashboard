@@ -17,7 +17,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_PATH = Path(__file__).resolve().parent / "chakobsa.db"
+# Store the SQLite database alongside this module so the scraper and API
+# agree on the location regardless of the working directory.
+DB_PATH = Path(__file__).resolve().with_name("chakobsa.db")
 
 # Use a relative import so the module resolves whether the backend is executed
 # directly (`python backend/server.py`) or via an import string

@@ -23,6 +23,7 @@ import re
 import sys
 import sqlite3
 import warnings
+from pathlib import Path
 from urllib.parse import quote_plus
 
 import mwclient
@@ -32,7 +33,8 @@ from typing import Generator, Dict
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-DB, ROOT_CAT = "chakobsa.db", "Chakobsa lemmas"
+DB = Path(__file__).resolve().with_name("chakobsa.db")
+ROOT_CAT = "Chakobsa lemmas"
 site = mwclient.Site("wiki.languageinvention.com", scheme="https", path="/")
 
 def all_lemma_pages(root: str = ROOT_CAT):
