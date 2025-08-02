@@ -1,14 +1,42 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @font-face {
-  font-family: 'Chakobsa';
-  src: url('/fonts/chakobsa.ttf') format('truetype');
+  font-family: "Chakobsa";
+  src: url("/fonts/chakobsa.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 body {
-  @apply font-sans;
+  @apply min-h-screen text-gray-900 dark:text-white;
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-white/20 dark:border-gray-700/50 shadow-xl;
+  }
+
+  .input-style {
+    @apply border border-white/30 dark:border-gray-700 bg-white/70 dark:bg-gray-800/50 backdrop-blur-sm px-3 py-2 rounded-full w-full mt-1;
+  }
+
+  .input-style option {
+    @apply bg-gray-800 text-white;
+  }
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+button.whitespace-nowrap.text-ellipsis.overflow-hidden {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 180px; /* or whatever fits best in your layout */
 }

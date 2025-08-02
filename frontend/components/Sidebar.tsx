@@ -1,3 +1,5 @@
+"use client"
+
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
@@ -16,7 +18,7 @@ export default function Sidebar({ open, close }: SidebarProps) {
   const router = useRouter()
   return (
     <aside
-      className={`fixed top-0 left-[-280px] w-[280px] h-full bg-[rgba(15,15,35,0.95)] backdrop-blur-xl border-r border-white/10 transition-all z-40 pt-[90px] ${
+      className={`fixed top-0 -left-[280px] w-[280px] h-full bg-[rgba(15,15,35,0.95)] backdrop-blur-xl border-r border-white/10 transition-all duration-300 z-40 pt-[90px] ${
         open ? 'left-0' : ''
       }`}
     >

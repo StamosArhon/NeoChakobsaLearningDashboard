@@ -1,3 +1,5 @@
+"use client"
+
 interface MenuToggleProps {
   onClick: () => void
 }
