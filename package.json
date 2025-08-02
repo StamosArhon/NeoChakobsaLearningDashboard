@@ -8,6 +8,6 @@
     "setup:backend": "python -m pip install -r backend/requirements.txt",
     "setup:frontend": "npm --prefix frontend install --no-save --no-package-lock",
     "setup": "npm run setup:backend && npm run setup:frontend",
-    "dev": "concurrently \"uvicorn backend.server:app --reload\" \"npm --prefix frontend run dev\""
+    "dev": "concurrently \"python -m uvicorn backend.server:app --reload\" \"npm --prefix frontend run dev\""
   }
 }
