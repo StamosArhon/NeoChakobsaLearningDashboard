@@ -17,21 +17,41 @@ BACKEND = ROOT / 'backend'
 
 
 def install() -> None:
-  subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'fastapi', 'uvicorn', 'mwclient', 'mwparserfromhell', 'tqdm'])
-  subprocess.check_call(['npm', 'install'], cwd=FRONTEND)
+  subprocess.check_call(
+      [
+          sys.executable,
+          '-m',
+          'pip',
+          'install',
+          'fastapi',
+          'uvicorn',
+          'mwclient',
+          'mwparserfromhell',
+          'tqdm',
+      ]
+  )
+  try:
+      subprocess.check_call(['npm', 'install'], cwd=FRONTEND)
+  except FileNotFoundError:
+      print('npm not found; skipping frontend dependency installation', file=sys.stderr)
 
 
 def dev() -> None:
   backend = subprocess.Popen([sys.executable, 'backend/server.py'], cwd=ROOT)
-  frontend = subprocess.Popen(['npm', 'run', 'dev'], cwd=FRONTEND)
   try:
-    backend.wait()
-    frontend.wait()
+      frontend = subprocess.Popen(['npm', 'run', 'dev'], cwd=FRONTEND)
+  except FileNotFoundError:
+      print('npm not found; only backend started at http://localhost:8000', file=sys.stderr)
+      backend.wait()
+      return
+  try:
+      backend.wait()
+      frontend.wait()
   finally:
-    for p in (backend, frontend):
-      if p.poll() is None:
-        p.terminate()
-        p.wait()
+      for p in (backend, frontend):
+          if p.poll() is None:
+              p.terminate()
+              p.wait()
 
 
 if __name__ == '__main__':
