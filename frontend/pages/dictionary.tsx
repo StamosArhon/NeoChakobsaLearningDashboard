@@ -3,7 +3,11 @@ import { useState } from 'react'
 import SearchInput from '../components/SearchInput'
 import LetterSection from '../components/LetterSection'
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error('failed to load')
+    return r.json()
+  })
 
 type Entry = {
   lemma: string
@@ -11,13 +15,15 @@ type Entry = {
 }
 
 export default function Dictionary() {
-  const { data } = useSWR<{ entries: Entry[] }>(
-    'http://localhost:8000/dictionary',
+  const api = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+  const { data, error } = useSWR<{ entries: Entry[] }>(
+    `${api}/dictionary`,
     fetcher
   )
   const [query, setQuery] = useState('')
 
-  if (!data) return <p>Loading...</p>
+  if (error) return <p>Failed to load</p>
+  if (!data?.entries) return <p>Loading...</p>
 
   const filtered = data.entries.filter(
     (e) =>
