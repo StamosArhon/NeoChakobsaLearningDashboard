@@ -19,7 +19,10 @@ app.add_middleware(
 
 DB_PATH = Path(__file__).resolve().parent / "chakobsa.db"
 
-from chakobsa_scraper import stream_scrape
+# Use a relative import so the module resolves whether the backend is executed
+# directly (`python backend/server.py`) or via an import string
+# (`uvicorn backend.server:app`).
+from .chakobsa_scraper import stream_scrape
 
 
 @app.get("/scrape")
