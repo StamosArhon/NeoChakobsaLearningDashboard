@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import sqlite3
 import subprocess
+import sys
 
 app = FastAPI()
 
@@ -21,7 +22,7 @@ DB_PATH = Path(__file__).resolve().parent / "chakobsa.db"
 async def scrape(background_tasks: BackgroundTasks):
     def run_scraper():
         script = Path(__file__).resolve().parent / "chakobsa_scraper.py"
-        subprocess.run(["python", str(script)], check=True)
+        subprocess.run([sys.executable, str(script)], check=True)
     background_tasks.add_task(run_scraper)
     return {"status": "started"}
 
@@ -43,5 +44,5 @@ async def dictionary():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("backend.server:app", host="0.0.0.0", port=8000, reload=True)
 
