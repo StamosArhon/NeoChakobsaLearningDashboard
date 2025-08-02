@@ -7,41 +7,27 @@ export default function Scrapper() {
   const [status, setStatus] = useState('Fetching vocabulary data...')
   const [items, setItems] = useState('0 / 0 items processed')
 
-  const runScrape = async () => {
+  const runScrape = () => {
     setRunning(true)
     setProgress(0)
     setStatus('Connecting to data source...')
     setItems('0 / 0 items processed')
     const api = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
-    try {
-      await fetch(`${api}/scrape`, { method: 'POST' })
-    } catch (err) {
-      setStatus('❌ Failed to reach backend')
-      setRunning(false)
-      return
-    }
-    let pct = 0
-    const interval = setInterval(() => {
-      pct += Math.random() * 15
-      if (pct > 100) pct = 100
-      setProgress(pct)
-      if (pct < 30) {
-        setStatus('Connecting to data source...')
-        setItems(`${Math.round(pct * 28)} / 2,847 items processed`)
-      } else if (pct < 60) {
+    const es = new EventSource(`${api}/scrape`)
+    es.onmessage = (ev) => {
+      const data = JSON.parse(ev.data)
+      if (data.status === 'start') {
+        setItems(`0 / ${data.total} items processed`)
+      } else if (data.status === 'progress') {
+        const pct = (data.current / data.total) * 100
+        setProgress(pct)
         setStatus('Fetching vocabulary data...')
-        setItems(`${Math.round(pct * 28)} / 2,847 items processed`)
-      } else if (pct < 90) {
-        setStatus('Processing grammar rules...')
-        setItems(`${Math.round(pct * 28)} / 2,847 items processed`)
-      } else if (pct < 100) {
-        setStatus('Finalizing database updates...')
-        setItems(`${Math.round(pct * 28)} / 2,847 items processed`)
-      }
-      if (pct >= 100) {
-        clearInterval(interval)
+        setItems(`${data.inserted} / ${data.total} items processed`)
+      } else if (data.status === 'done') {
+        setProgress(100)
         setStatus('✅ Scrapping completed successfully!')
-        setItems('2,847 / 2,847 items processed')
+        setItems(`${data.inserted} / ${data.total} items processed`)
+        es.close()
         setTimeout(() => {
           setRunning(false)
           setProgress(0)
@@ -49,7 +35,12 @@ export default function Scrapper() {
           setItems('0 / 0 items processed')
         }, 3000)
       }
-    }, 200)
+    }
+    es.onerror = () => {
+      setStatus('❌ Failed to reach backend')
+      setRunning(false)
+      es.close()
+    }
   }
 
   return (

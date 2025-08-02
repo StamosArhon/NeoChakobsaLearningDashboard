@@ -1,10 +1,11 @@
-from fastapi import FastAPI, BackgroundTasks
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import sqlite3
-import subprocess
-import sys
+import asyncio
+import threading
+import json
 
 app = FastAPI()
 
@@ -18,13 +19,28 @@ app.add_middleware(
 
 DB_PATH = Path(__file__).resolve().parent / "chakobsa.db"
 
-@app.post("/scrape")
-async def scrape(background_tasks: BackgroundTasks):
-    def run_scraper():
-        script = Path(__file__).resolve().parent / "chakobsa_scraper.py"
-        subprocess.run([sys.executable, str(script)], check=True)
-    background_tasks.add_task(run_scraper)
-    return {"status": "started"}
+from chakobsa_scraper import stream_scrape
+
+
+@app.get("/scrape")
+async def scrape():
+    async def event_stream():
+        queue: asyncio.Queue = asyncio.Queue()
+
+        def run():
+            for update in stream_scrape():
+                queue.put_nowait(update)
+            queue.put_nowait(None)
+
+        threading.Thread(target=run, daemon=True).start()
+
+        while True:
+            item = await queue.get()
+            if item is None:
+                break
+            yield f"data: {json.dumps(item)}\n\n"
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
 
 @app.get("/dictionary")
 async def dictionary():
