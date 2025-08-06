@@ -12,6 +12,9 @@ const fetcher = (url: string) =>
 type Entry = {
   lemma: string
   orth: string | null
+  ipa: string | null
+  gloss: string | null
+  url: string
 }
 
 export default function Dictionary() {
@@ -28,7 +31,8 @@ export default function Dictionary() {
   const filtered = data.entries.filter(
     (e) =>
       e.lemma.toLowerCase().includes(query.toLowerCase()) ||
-      (e.orth || '').toLowerCase().includes(query.toLowerCase())
+      (e.orth || '').toLowerCase().includes(query.toLowerCase()) ||
+      (e.gloss || '').toLowerCase().includes(query.toLowerCase())
   )
 
   const grouped: Record<string, Entry[]> = {}

@@ -10,7 +10,8 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "swr": "latest"
+    "swr": "latest",
+    "lucide-react": "latest"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "latest",

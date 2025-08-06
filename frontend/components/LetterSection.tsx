@@ -3,6 +3,9 @@ import WordCard from './WordCard'
 interface Entry {
   lemma: string
   orth: string | null
+  ipa: string | null
+  gloss: string | null
+  url: string
 }
 
 export default function LetterSection({
@@ -19,7 +22,14 @@ export default function LetterSection({
       </h3>
       <div className="grid gap-5 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-5">
         {entries.map((e) => (
-          <WordCard key={e.lemma} lemma={e.lemma} orth={e.orth} />
+          <WordCard
+            key={e.lemma}
+            lemma={e.lemma}
+            orth={e.orth}
+            ipa={e.ipa}
+            gloss={e.gloss}
+            url={e.url}
+          />
         ))}
       </div>
     </section>
