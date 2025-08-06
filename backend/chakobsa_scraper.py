@@ -10,7 +10,7 @@ Saves:
   • pos    (part-of-speech)
   • gloss  (all senses, “; ”-joined)
   • ipa    (IPA pronunciation)
-  • orth   (glyph text with hyphens replaced by commas)
+  • orth   (HTML span containing the Chakobsa glyph, hyphens replaced by commas)
   • url    (…/index.php?title=…)
 
 Install:
@@ -25,7 +25,6 @@ import sqlite3
 import warnings
 from pathlib import Path
 from urllib.parse import quote_plus
-import html
 
 import mwclient
 import mwparserfromhell
@@ -136,13 +135,11 @@ def stream_scrape() -> Generator[Dict[str, int], None, None]:
             debug_saved += 1
 
         # 2. extract first Chakobsa font span ANYWHERE in the page
+        #    Keep the span HTML intact so the glyphs survive.
         orth = None
         m2 = CHAKOBSA_SPAN_RX.search(html_body)
         if m2:
-            span = m2.group(1)
-            cleaned = re.sub(r"<[^>]+>", "", span)
-            text = html.unescape(cleaned).replace('-', ',').strip()
-            orth = text
+            orth = m2.group(1).replace('-', ',')
 
         url = f"https://wiki.languageinvention.com/index.php?title={quote_plus(title)}"
         cur.execute(
