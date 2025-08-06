@@ -25,6 +25,7 @@ import sqlite3
 import warnings
 from pathlib import Path
 from urllib.parse import quote_plus
+import html
 
 import mwclient
 import mwparserfromhell
@@ -139,9 +140,8 @@ def stream_scrape() -> Generator[Dict[str, int], None, None]:
         m2 = CHAKOBSA_SPAN_RX.search(html_body)
         if m2:
             span = m2.group(1)
-            start = span.find('>') + 1
-            end = span.rfind('<')
-            text = span[start:end].replace('-', ',').strip()
+            cleaned = re.sub(r"<[^>]+>", "", span)
+            text = html.unescape(cleaned).replace('-', ',').strip()
             orth = text
 
         url = f"https://wiki.languageinvention.com/index.php?title={quote_plus(title)}"
