@@ -135,11 +135,17 @@ def stream_scrape() -> Generator[Dict[str, int], None, None]:
             debug_saved += 1
 
         # 2. extract first Chakobsa font span ANYWHERE in the page
-        #    Keep the span HTML intact so the glyphs survive.
+        #    Keep the span HTML intact so the glyphs survive.  Only replace
+        #    hyphens in the text nodes so style attributes remain valid.
         orth = None
         m2 = CHAKOBSA_SPAN_RX.search(html_body)
         if m2:
-            orth = m2.group(1).replace('-', ',')
+            span = m2.group(1)
+            orth = re.sub(
+                r">([^<]+)<",
+                lambda m: ">" + m.group(1).replace("-", ",") + "<",
+                span,
+            )
 
         url = f"https://wiki.languageinvention.com/index.php?title={quote_plus(title)}"
         cur.execute(
